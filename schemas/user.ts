@@ -11,3 +11,8 @@ export const userSchema = z.object({
   sus_id: z.string().min(1, "SUS ID é obrigatório"),
   ubs: z.string().min(1, "UBS é obrigatório"),
 });
+
+export const loginSchema = z.object({
+  cpf: z.string().length(11, "CPF deve ter 11 dígitos"),
+  password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
+});
