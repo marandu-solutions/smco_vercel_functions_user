@@ -12,7 +12,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  // Validar os dados do login
   let loginData;
   try {
     loginData = loginSchema.parse(req.body);
@@ -35,7 +34,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ message: "Error accessing user database", error });
   }
 
-  // Gerar JWT
   const token = jwt.sign({ userId: user.xata_id, name: user.name }, ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
 
   return res.status(200).json({ token });

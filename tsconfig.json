@@ -1,17 +1,11 @@
 {
   "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "outDir": "dist",
-    "target": "ES5",
-    "module": "ESNext",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["./node_modules/@vercel"]
+    "outDir": "dist"
+  }
 }
