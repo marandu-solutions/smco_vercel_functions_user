@@ -4,7 +4,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { UserJwt as CurrentUser } from "../../types/user";
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
-  if (request.method !== "GET") {
+  if (request.method !== "PUT") {
     return response.status(405).json({ message: "Method Not Allowed" });
   }
 
