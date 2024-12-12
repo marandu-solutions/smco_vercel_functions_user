@@ -2,8 +2,10 @@ import { getXataClient } from "../../database/xata";
 import { validateJWT } from "../../middleware/jwt";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { UserJwt as CurrentUser } from "../../types/user";
+import { allowCors } from "../../middleware/cors";
 
-export default async function handler(request: VercelRequest, response: VercelResponse) {
+
+export default allowCors(async function handler(request: VercelRequest, response: VercelResponse) {
   if (request.method !== "GET") {
     return response.status(405).json({ message: "Method Not Allowed" });
   }
@@ -34,10 +36,10 @@ export default async function handler(request: VercelRequest, response: VercelRe
         return bDate - aDate;
       });
 
-      return response.status(200).json( news );
+      return response.status(200).json(news);
     } catch (error) {
       console.error(error);
       return response.status(500).json({ message: "Failed to fetch news", error: error });
     }
   });
-}
+});
