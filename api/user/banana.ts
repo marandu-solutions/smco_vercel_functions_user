@@ -1,21 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { ValidateJwt } from '../../middleware/jwt';
+import { validateJWT } from '../../middleware/jwt';
 
-class MyRoutes {
-  @ValidateJwt(['POST'])
-  async myProtectedRoute(req: VercelRequest, res: VercelResponse) {
-    return res.status(200).json({
-      message: 'You have access to this route',
-      user: req.user,  // Usuário autenticado com base no JWT
-    });
+export default function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ message: "Method Not Allowed" });
   }
-}
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const routes = new MyRoutes();
-
-  if (req.url === '/protected') {
-    return routes.myProtectedRoute(req, res);
-  }
-  res.status(404).json({ message: 'Route not found' });
+  // Validar o token
+  validateJWT(req, res, () => {
+    return res.status(200).json({ message: "Hello World" });
+  });
 }
