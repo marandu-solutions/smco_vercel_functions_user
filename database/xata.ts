@@ -1,0 +1,901 @@
+import { buildClient } from "@xata.io/client";
+import type { BaseClientOptions, SchemaInference, XataRecord } from "@xata.io/client";
+import appConfig from "../core/app_config";
+
+const tables = [
+  {
+    name: "appointment",
+    checkConstraints: {
+      appointment_xata_id_length_xata_id: {
+        name: "appointment_xata_id_length_xata_id",
+        columns: ["xata_id"],
+        definition: "CHECK ((length(xata_id) < 256))",
+      },
+    },
+    foreignKeys: {
+      appointment_caregory_link: {
+        name: "appointment_caregory_link",
+        columns: ["appointment_caregory"],
+        referencedTable: "appointment_category",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      created_by_link: {
+        name: "created_by_link",
+        columns: ["created_by"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      doctor_link: {
+        name: "doctor_link",
+        columns: ["doctor"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      patient_link: {
+        name: "patient_link",
+        columns: ["patient"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      previous_appointment_link: {
+        name: "previous_appointment_link",
+        columns: ["previous_appointment"],
+        referencedTable: "appointment",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      ubs_link: {
+        name: "ubs_link",
+        columns: ["ubs"],
+        referencedTable: "ubs",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      updated_by_link: {
+        name: "updated_by_link",
+        columns: ["updated_by"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+    },
+    primaryKey: [],
+    uniqueConstraints: {
+      _pgroll_new_appointment_xata_id_key: {
+        name: "_pgroll_new_appointment_xata_id_key",
+        columns: ["xata_id"],
+      },
+    },
+    columns: [
+      {
+        name: "appointment_caregory",
+        type: "link",
+        link: { table: "appointment_category" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"appointment_category"}',
+      },
+      {
+        name: "created_by",
+        type: "link",
+        link: { table: "user" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "doctor",
+        type: "link",
+        link: { table: "user" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "patient",
+        type: "link",
+        link: { table: "user" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "previous_appointment",
+        type: "link",
+        link: { table: "appointment" },
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"appointment"}',
+      },
+      {
+        name: "scheduled_date",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "status",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: "'scheduled'::text",
+        comment: "",
+      },
+      {
+        name: "ubs",
+        type: "link",
+        link: { table: "ubs" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"ubs"}',
+      },
+      {
+        name: "updated_by",
+        type: "link",
+        link: { table: "user" },
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "xata_createdat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_id",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: "('rec_'::text || (xata_private.xid())::text)",
+        comment: "",
+      },
+      {
+        name: "xata_updatedat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_version",
+        type: "int",
+        notNull: true,
+        unique: false,
+        defaultValue: "0",
+        comment: "",
+      },
+    ],
+  },
+  {
+    name: "appointment_category",
+    checkConstraints: {
+      appointment_category_xata_id_length_xata_id: {
+        name: "appointment_category_xata_id_length_xata_id",
+        columns: ["xata_id"],
+        definition: "CHECK ((length(xata_id) < 256))",
+      },
+    },
+    foreignKeys: {
+      ubs_link: {
+        name: "ubs_link",
+        columns: ["ubs"],
+        referencedTable: "ubs",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+    },
+    primaryKey: [],
+    uniqueConstraints: {
+      _pgroll_new_appointment_category_xata_id_key: {
+        name: "_pgroll_new_appointment_category_xata_id_key",
+        columns: ["xata_id"],
+      },
+    },
+    columns: [
+      {
+        name: "name",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "ubs",
+        type: "link",
+        link: { table: "ubs" },
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"ubs"}',
+      },
+      {
+        name: "xata_createdat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_id",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: "('rec_'::text || (xata_private.xid())::text)",
+        comment: "",
+      },
+      {
+        name: "xata_updatedat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_version",
+        type: "int",
+        notNull: true,
+        unique: false,
+        defaultValue: "0",
+        comment: "",
+      },
+    ],
+  },
+  {
+    name: "news",
+    checkConstraints: {
+      news_xata_id_length_xata_id: {
+        name: "news_xata_id_length_xata_id",
+        columns: ["xata_id"],
+        definition: "CHECK ((length(xata_id) < 256))",
+      },
+    },
+    foreignKeys: {
+      created_by_link: {
+        name: "created_by_link",
+        columns: ["created_by"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      ubs_link: {
+        name: "ubs_link",
+        columns: ["ubs"],
+        referencedTable: "ubs",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      updated_by_link: {
+        name: "updated_by_link",
+        columns: ["updated_by"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+    },
+    primaryKey: [],
+    uniqueConstraints: {
+      _pgroll_new_news_xata_id_key: {
+        name: "_pgroll_new_news_xata_id_key",
+        columns: ["xata_id"],
+      },
+    },
+    columns: [
+      {
+        name: "created_by",
+        type: "link",
+        link: { table: "user" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "image_url",
+        type: "text",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "status",
+        type: "bool",
+        notNull: true,
+        unique: false,
+        defaultValue: "true",
+        comment: "",
+      },
+      {
+        name: "text",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "title",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "ubs",
+        type: "link",
+        link: { table: "ubs" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"ubs"}',
+      },
+      {
+        name: "updated_by",
+        type: "link",
+        link: { table: "user" },
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "xata_createdat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_id",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: "('rec_'::text || (xata_private.xid())::text)",
+        comment: "",
+      },
+      {
+        name: "xata_updatedat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_version",
+        type: "int",
+        notNull: true,
+        unique: false,
+        defaultValue: "0",
+        comment: "",
+      },
+    ],
+  },
+  {
+    name: "ubs",
+    checkConstraints: {
+      ubs_novo_xata_id_length_xata_id: {
+        name: "ubs_novo_xata_id_length_xata_id",
+        columns: ["xata_id"],
+        definition: "CHECK ((length(xata_id) < 256))",
+      },
+    },
+    foreignKeys: {
+      admin_link: {
+        name: "admin_link",
+        columns: ["admin"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+    },
+    primaryKey: [],
+    uniqueConstraints: {
+      _pgroll_new_ubs_novo_xata_id_key: {
+        name: "_pgroll_new_ubs_novo_xata_id_key",
+        columns: ["xata_id"],
+      },
+      ubs__pgroll_new_land_phone_key: {
+        name: "ubs__pgroll_new_land_phone_key",
+        columns: ["land_phone"],
+      },
+      ubs_novo__pgroll_new_name_key: {
+        name: "ubs_novo__pgroll_new_name_key",
+        columns: ["name"],
+      },
+    },
+    columns: [
+      {
+        name: "acss",
+        type: "json",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "address",
+        type: "json",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "admin",
+        type: "link",
+        link: { table: "user" },
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "doctors",
+        type: "json",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "land_phone",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "name",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "receptionists",
+        type: "json",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "xata_createdat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_id",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: "('rec_'::text || (xata_private.xid())::text)",
+        comment: "",
+      },
+      {
+        name: "xata_updatedat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_version",
+        type: "int",
+        notNull: true,
+        unique: false,
+        defaultValue: "0",
+        comment: "",
+      },
+    ],
+  },
+  {
+    name: "user",
+    checkConstraints: {
+      user_novo_xata_id_length_xata_id: {
+        name: "user_novo_xata_id_length_xata_id",
+        columns: ["xata_id"],
+        definition: "CHECK ((length(xata_id) < 256))",
+      },
+    },
+    foreignKeys: {
+      ubs_link: {
+        name: "ubs_link",
+        columns: ["ubs"],
+        referencedTable: "ubs",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+    },
+    primaryKey: [],
+    uniqueConstraints: {
+      _pgroll_new_user_novo_xata_id_key: {
+        name: "_pgroll_new_user_novo_xata_id_key",
+        columns: ["xata_id"],
+      },
+      user_novo__pgroll_new_cpf_key: {
+        name: "user_novo__pgroll_new_cpf_key",
+        columns: ["cpf"],
+      },
+      user_novo__pgroll_new_email_key: {
+        name: "user_novo__pgroll_new_email_key",
+        columns: ["email"],
+      },
+      user_novo__pgroll_new_password_hash_key: {
+        name: "user_novo__pgroll_new_password_hash_key",
+        columns: ["password_hash"],
+      },
+      user_novo__pgroll_new_phone_key: {
+        name: "user_novo__pgroll_new_phone_key",
+        columns: ["phone"],
+      },
+      user_novo__pgroll_new_sus_id_key: {
+        name: "user_novo__pgroll_new_sus_id_key",
+        columns: ["sus_id"],
+      },
+    },
+    columns: [
+      {
+        name: "birthdate",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "cpf",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "email",
+        type: "text",
+        notNull: false,
+        unique: true,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "gender",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "name",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "password_hash",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "phone",
+        type: "text",
+        notNull: false,
+        unique: true,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "profile",
+        type: "text",
+        notNull: true,
+        unique: false,
+        defaultValue: "'patient'::text",
+        comment: "",
+      },
+      {
+        name: "profile_pic_url",
+        type: "text",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "social_name",
+        type: "text",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "status",
+        type: "bool",
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "sus_id",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "ubs",
+        type: "link",
+        link: { table: "ubs" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"ubs"}',
+      },
+      {
+        name: "xata_createdat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_id",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: "('rec_'::text || (xata_private.xid())::text)",
+        comment: "",
+      },
+      {
+        name: "xata_updatedat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_version",
+        type: "int",
+        notNull: true,
+        unique: false,
+        defaultValue: "0",
+        comment: "",
+      },
+    ],
+  },
+  {
+    name: "vacancy_destribution",
+    checkConstraints: {
+      vacancy_destribution_xata_id_length_xata_id: {
+        name: "vacancy_destribution_xata_id_length_xata_id",
+        columns: ["xata_id"],
+        definition: "CHECK ((length(xata_id) < 256))",
+      },
+    },
+    foreignKeys: {
+      created_by_link: {
+        name: "created_by_link",
+        columns: ["created_by"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      doctor_link: {
+        name: "doctor_link",
+        columns: ["doctor"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      ubs_link: {
+        name: "ubs_link",
+        columns: ["ubs"],
+        referencedTable: "ubs",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+      updated_by_link: {
+        name: "updated_by_link",
+        columns: ["updated_by"],
+        referencedTable: "user",
+        referencedColumns: ["xata_id"],
+        onDelete: "SET NULL",
+      },
+    },
+    primaryKey: [],
+    uniqueConstraints: {
+      _pgroll_new_vacancy_destribution_xata_id_key: {
+        name: "_pgroll_new_vacancy_destribution_xata_id_key",
+        columns: ["xata_id"],
+      },
+    },
+    columns: [
+      {
+        name: "created_by",
+        type: "link",
+        link: { table: "user" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "date",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "doctor",
+        type: "link",
+        link: { table: "user" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "priority_config",
+        type: "json",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "ubs",
+        type: "link",
+        link: { table: "ubs" },
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"ubs"}',
+      },
+      {
+        name: "updated_by",
+        type: "link",
+        link: { table: "user" },
+        notNull: false,
+        unique: false,
+        defaultValue: null,
+        comment: '{"xata.link":"user"}',
+      },
+      {
+        name: "vacancy_config",
+        type: "json",
+        notNull: true,
+        unique: false,
+        defaultValue: null,
+        comment: "",
+      },
+      {
+        name: "xata_createdat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_id",
+        type: "text",
+        notNull: true,
+        unique: true,
+        defaultValue: "('rec_'::text || (xata_private.xid())::text)",
+        comment: "",
+      },
+      {
+        name: "xata_updatedat",
+        type: "datetime",
+        notNull: true,
+        unique: false,
+        defaultValue: "now()",
+        comment: "",
+      },
+      {
+        name: "xata_version",
+        type: "int",
+        notNull: true,
+        unique: false,
+        defaultValue: "0",
+        comment: "",
+      },
+    ],
+  },
+] as const;
+
+export type SchemaTables = typeof tables;
+export type InferredTypes = SchemaInference<SchemaTables>;
+
+export type Appointment = InferredTypes["appointment"];
+export type AppointmentRecord = Appointment & XataRecord;
+
+export type AppointmentCategory = InferredTypes["appointment_category"];
+export type AppointmentCategoryRecord = AppointmentCategory & XataRecord;
+
+export type News = InferredTypes["news"];
+export type NewsRecord = News & XataRecord;
+
+export type Ubs = InferredTypes["ubs"];
+export type UbsRecord = Ubs & XataRecord;
+
+export type User = InferredTypes["user"];
+export type UserRecord = User & XataRecord;
+
+export type VacancyDestribution = InferredTypes["vacancy_destribution"];
+export type VacancyDestributionRecord = VacancyDestribution & XataRecord;
+
+export type DatabaseSchema = {
+  appointment: AppointmentRecord;
+  appointment_category: AppointmentCategoryRecord;
+  news: NewsRecord;
+  ubs: UbsRecord;
+  user: UserRecord;
+  vacancy_destribution: VacancyDestributionRecord;
+};
+
+const DatabaseClient = buildClient();
+
+const defaultOptions = {
+  databaseURL: appConfig.xata.databaseUrl,
+  apiKey: appConfig.xata.apiKey,
+  branch: appConfig.xata.branch
+};
+
+export class XataClient extends DatabaseClient<DatabaseSchema> {
+  constructor(options?: BaseClientOptions) {
+    super({ ...defaultOptions, ...options }, tables);
+  }
+}
+
+let instance: XataClient | undefined = undefined;
+
+export const getXataClient = () => {
+  if (instance) return instance;
+
+  instance = new XataClient();
+  return instance;
+};
