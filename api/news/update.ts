@@ -1,7 +1,14 @@
 import { getXataClient } from "../../database/xata";
 import { validateJWT } from "../../middleware/jwt";
 import { VercelRequest, VercelResponse } from "@vercel/node";
+import { z } from "zod";
 import { UserJwt as CurrentUser } from "../../types/user";
+
+const updateNewsSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  text: z.string(),
+});
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
   if (request.method !== "PUT") {
@@ -12,32 +19,26 @@ export default async function handler(request: VercelRequest, response: VercelRe
     const xata = getXataClient();
 
     try {
-      const result = await xata.db.news.select([
-        "id", "ubs.id", "title", "text", "image_url", "created_by.name", "xata.createdAt", "xata.updatedAt"
-      ]).filter({ ubs: currentUser.ubs }).getAll();
+      const validatedData = updateNewsSchema.parse(request.body);
 
-      const newsList = result.map(news => ({
-        id: news.id,
-        ubs: news.ubs.id,
-        title: news.title,
-        text: news.text,
-        image_url: news.image_url,
-        created_by: news.created_by.name,
-        createdAt: news.xata.createdAt,
-        updatedAt: news.xata.updatedAt
-      }));
+      const { id, title, text } = validatedData;
+      const newsItem = await xata.db.news.filter({ id, "ubs.id": currentUser.ubs }).getFirst();
+      if (!newsItem) {
+        return response.status(404).json({ message: "News not found or access denied" });
+      }
 
-      const news = newsList.sort((a, b) => {
-        const aDate = Math.max(new Date(a.createdAt).getTime(), new Date(a.updatedAt).getTime());
-        const bDate = Math.max(new Date(b.createdAt).getTime(), new Date(b.updatedAt).getTime());
-
-        return bDate - aDate;
+      const updatedNews = await xata.db.news.update(id, {
+        title: title,
+        text: text,
       });
 
-      return response.status(200).json( news );
+      return response.status(200).json({ message: "News updated successfully", updatedNews });
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return response.status(400).json({ message: "Validation error", errors: error.errors });
+      }
       console.error(error);
-      return response.status(500).json({ message: "Failed to fetch news", error: error });
+      return response.status(500).json({ message: "Failed to update news", error });
     }
   });
 }
