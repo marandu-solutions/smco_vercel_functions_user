@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { VercelRequest, VercelResponse } from '@vercel/node';
-
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || "your-access-token-secret";
+import { UserJwt } from '../types/user';
+import appConfig from '../core/app_config';
 
 export function validateJWT(req: VercelRequest, res: VercelResponse, next: Function) {
   const authHeader = req.headers.authorization;
@@ -11,9 +11,8 @@ export function validateJWT(req: VercelRequest, res: VercelResponse, next: Funct
 
   const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET);
-    (req as any).user = decoded; // Adicionar o usuário decodificado ao objeto da requisição
-    next();
+    const decoded = jwt.verify(token, appConfig.jwt.secretKey) as UserJwt;
+    next(decoded);
   } catch (error) {
     return res.status(401).json({ message: "Invalid or expired token", error });
   }

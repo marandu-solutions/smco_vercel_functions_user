@@ -4,8 +4,8 @@ import { z } from 'zod';
 import { loginSchema } from '../../schemas/user';
 import { hashPassword } from '../../utils/common';
 import { getXataClient } from '../../database/xata';
-
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || "your-access-token-secret";
+import { UserLoginData } from '../../types/user';
+import appConfig from '../../core/app_config';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -22,10 +22,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ message: "Unexpected error", error });
   }
 
-  let user;
+  let user: UserLoginData | null = null;
+
   try {
     const xata = getXataClient();
-    user = await xata.db.user.filter({ cpf: loginData.cpf }).getFirst();
+    user = await xata.db.user.select(
+      ["id", "name", "ubs.xata_id", "password_hash"]
+    ).filter({ cpf: loginData.cpf }).getFirst();
 
     if (!user || hashPassword(loginData.password, loginData.cpf) !== user.password_hash) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -34,7 +37,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ message: "Error accessing user database", error });
   }
 
-  const token = jwt.sign({ userId: user.xata_id, name: user.name }, ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+  const token = jwt.sign(
+    { id: user.id, name: user.name, ubs: user.ubs.id },
+    appConfig.jwt.secretKey,
+    { expiresIn: "10h" }
+  );
 
   return res.status(200).json({ token });
 }
