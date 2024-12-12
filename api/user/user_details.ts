@@ -1,7 +1,8 @@
 import { getXataClient } from "../../database/xata";
 import { validateJWT } from "../../middleware/jwt";
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { UserJwt as CurrentUser } from "../../types/user";
+import { UserJwt as CurrentUser, UserDetails } from "../../types/user";
+
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
   if (request.method !== "GET") {
@@ -17,9 +18,11 @@ export default async function handler(request: VercelRequest, response: VercelRe
         "social_name", "profile_pic_url", "sus_id"
       ]).filter({ id: currentUser.id }).getFirst();
 
-      console.log(result);
+      if (!result) {
+        return response.status(404).json({ message: "User not found" });
+      }
 
-      const userDetails = {
+      const userDetails: UserDetails = {
         id: result.id,
         name: result.name,
         cpf: result.cpf,
@@ -33,7 +36,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
         sus_id: result.sus_id
       };
 
-      return response.status(200).json( userDetails );
+      return response.status(200).json(userDetails);
     } catch (error) {
       console.error(error);
       return response.status(500).json({ message: "Failed to fetch user details", error: error });
