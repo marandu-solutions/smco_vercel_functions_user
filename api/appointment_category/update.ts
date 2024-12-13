@@ -4,7 +4,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { z } from "zod";
 import { UserJwt as CurrentUser } from "../../types/user";
 import { allowCors } from "../../middleware/cors";
-import { updateNewsSchema } from "../../schemas/news";
+import { updateAppointmentCategory } from "../../schemas/appointment_category";
 
 
 export default allowCors(async function handler(request: VercelRequest, response: VercelResponse) {
@@ -16,25 +16,24 @@ export default allowCors(async function handler(request: VercelRequest, response
     const xata = getXataClient();
 
     try {
-      const validatedData = updateNewsSchema.parse(request.body);
+      const validatedData = updateAppointmentCategory.parse(request.body);
 
-      const { id, title, text } = validatedData;
-      const newsItem = await xata.db.news.filter({ id, "ubs.id": currentUser.ubs }).getFirst();
-      if (!newsItem) {
+      const { id, name } = validatedData;
+      const appoinmentCategory = await xata.db.news.filter({ id, "ubs.id": currentUser.ubs }).getFirst();
+      if (!appoinmentCategory) {
         return response.status(404).json({ message: "News not found or access denied" });
       }
 
-      const updatedNews = await xata.db.news.update(id, {
-        title: title,
-        text: text,
+      const updatedAppointmentCategory = await xata.db.appointment_category.update(id, {
+        name: name,
       });
 
-      return response.status(200).json({ message: "News updated successfully", updatedNews });
+      return response.status(200).json({ message: "appoinment category updated successfully", updatedAppointmentCategory });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return response.status(400).json({ message: "Validation error", errors: error.errors });
       }
-      return response.status(500).json({ message: "Failed to update news", error });
+      return response.status(500).json({ message: "Failed to update appoinment category", error });
     }
   });
 });

@@ -39,7 +39,6 @@ export default allowCors(async function handler(request: VercelRequest, response
 
       return response.status(200).json(userDetails);
     } catch (error) {
-      console.error(error);
       return response.status(500).json({ message: "Failed to fetch user details", error: error });
     }
   });

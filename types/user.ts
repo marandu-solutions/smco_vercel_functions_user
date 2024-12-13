@@ -5,6 +5,7 @@ export interface UserLoginData {
     id: string;
   };
   password_hash: string;
+  profile: string;
 }
 
 export interface UserJwt {
