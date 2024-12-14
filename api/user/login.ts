@@ -28,7 +28,7 @@ export default allowCors(async function handler(request: VercelRequest, response
   try {
     const xata = getXataClient();
     user = await xata.db.user.select(
-      ["id", "name", "ubs.xata_id", "password_hash", "profile"]
+      ["xata_id", "name", "ubs.xata_id", "password_hash", "profile"]
     ).filter({ cpf: loginData.cpf }).getFirst();
 
     if (!user || hashPassword(loginData.password, loginData.cpf) !== user.password_hash) {
@@ -39,7 +39,7 @@ export default allowCors(async function handler(request: VercelRequest, response
   }
 
   const token = jwt.sign(
-    { id: user.id, name: user.name, ubs: user.ubs.id, profile: user.profile },
+    { id: user.xata_id, name: user.name, ubs: user.ubs.xata_id, profile: user.profile },
     appConfig.jwt.secretKey,
     { expiresIn: "10h" }
   );

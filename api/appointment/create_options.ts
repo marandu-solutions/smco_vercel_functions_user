@@ -14,16 +14,16 @@ export default allowCors(async function handler(request: VercelRequest, response
     const xata = getXataClient();
 
     try {
-      const patientsResult = await xata.db.user.select(["id", "name"]).filter({ ubs: currentUser.ubs }).getAll();
-      const appointmentCategoriesResult = await xata.db.user.select(["id", "name"]).filter({ ubs: currentUser.ubs }).getAll();
+      const patientsResult = await xata.db.user.select(["xata_id", "name"]).filter({ ubs: currentUser.ubs }).getAll();
+      const appointmentCategoriesResult = await xata.db.appointment_category.select(["xata_id", "name"]).filter({ ubs: currentUser.ubs }).getAll();
 
       const createOptions = {
         patients: patientsResult.map(user => ({
-          id: user.id,
+          id: user.xata_id,
           name: user.name
         })),
         appointmentCategories: appointmentCategoriesResult.map(appointmentCategory => ({
-          id: appointmentCategory.id,
+          id: appointmentCategory.xata_id,
           name: appointmentCategory.name
         }))
       };

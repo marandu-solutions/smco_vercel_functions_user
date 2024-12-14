@@ -15,7 +15,7 @@ export default allowCors(async function handler(request: VercelRequest, response
 
     try {
       const result = await xata.db.appointment.select([
-        "id", "patient.name", "doctor.name", "created_by.name", "scheduled_date", "status", "appointment_category.name",
+        "xata_id", "patient.name", "doctor.name", "created_by.name", "scheduled_date", "status", "appointment_category.name",
         "previous_appointment.id", "xata.createdAt", "updated_by.name", "xata.updatedAt"
       ]).filter({ ubs: currentUser.ubs }).sort("xata.createdAt").getAll();
 

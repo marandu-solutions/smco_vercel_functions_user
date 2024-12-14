@@ -15,6 +15,8 @@ export default allowCors(async function handler(request: VercelRequest, response
   validateJWT(request, response, async (currentUser: CurrentUser) => {
     let userData;
     try {
+      console.log(request.body);
+      console.log(currentUser);
       userData = createAppointment.parse({
         ...request.body,
         ubs: currentUser.ubs,
@@ -24,6 +26,7 @@ export default allowCors(async function handler(request: VercelRequest, response
       if (error instanceof z.ZodError) {
         return response.status(400).json({ message: "Validation failed", errors: error.errors });
       }
+      console.log(error);
       return response.status(500).json({ message: "Unexpected error", error: error });
     }
 

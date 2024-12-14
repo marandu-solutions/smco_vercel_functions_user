@@ -4,7 +4,9 @@ export const createAppointment = z.object({
     appointment_category: z.string(),
     created_by: z.string(),
     patient: z.string(),
-    scheduled_date: z.date(),
+    scheduled_date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+        message: "Invalid date format, must be ISO 8601",
+    }).transform((val) => new Date(val)),
     ubs: z.string(),
 });
 
