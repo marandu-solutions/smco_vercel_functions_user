@@ -12,6 +12,7 @@ export interface UserJwt {
   id: string;
   name: string;
   ubs: string;
+  profile: string;
 }
 
 export interface UserDetails {
@@ -26,4 +27,6 @@ export interface UserDetails {
   social_name: string | null | undefined;
   profile_pic_url: string | null | undefined;
   sus_id: string;
+  ubs: string;
+  profile: string;
 }

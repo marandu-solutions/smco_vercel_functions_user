@@ -15,8 +15,8 @@ export default allowCors(async function handler(request: VercelRequest, response
 
     try {
       const result = await xata.db.user.select([
-        "id", "name", "cpf", "status", "birthdate", "email", "gender", "phone",
-        "social_name", "profile_pic_url", "sus_id"
+        "id", "name", "cpf", "status", "birthdate", "email", "gender", "phone", "ubs.id",
+        "social_name", "profile_pic_url", "sus_id", "profile"
       ]).filter({ id: currentUser.id }).getFirst();
 
       if (!result) {
@@ -34,7 +34,9 @@ export default allowCors(async function handler(request: VercelRequest, response
         phone: result.phone,
         social_name: result.social_name,
         profile_pic_url: result.profile_pic_url,
-        sus_id: result.sus_id
+        sus_id: result.sus_id,
+        ubs: result.ubs.id,
+        profile: result.profile
       };
 
       return response.status(200).json(userDetails);
