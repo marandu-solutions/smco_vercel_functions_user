@@ -1,5 +1,5 @@
 {
-  "databaseURL": "${XATA_DATABASE_URL}",
+  "databaseURL": "https://marandu-solutions-s-workspace-vtf0o3.us-east-1.xata.sh/db/smco-marandu",
   "codegen": {
     "output": "src/xata.ts"
   }
