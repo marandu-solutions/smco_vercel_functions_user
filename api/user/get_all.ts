@@ -18,13 +18,14 @@ export default allowCors(async function handler(request: VercelRequest, response
     const xata = getXataClient();
     try {
       const result = await xata.db.user.select([
-        "id", "ubs.id", "name",
+        "xata_id", "ubs.xata_id", "name", "profile"
       ]).filter({ ubs: currentUser.ubs }).getAll();
 
       const users = result.map(user => ({
-        id: user.id,
+        id: user.xata_id,
         ubs: user.ubs,
-        name: user.name
+        name: user.name,
+        profile: user.profile
       }));
 
       return response.status(200).json(users);

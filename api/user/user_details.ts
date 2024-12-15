@@ -15,16 +15,16 @@ export default allowCors(async function handler(request: VercelRequest, response
 
     try {
       const result = await xata.db.user.select([
-        "id", "name", "cpf", "status", "birthdate", "email", "gender", "phone", "ubs.id",
+        "xata_id", "name", "cpf", "status", "birthdate", "email", "gender", "phone", "ubs.xata_id",
         "social_name", "profile_pic_url", "sus_id", "profile"
-      ]).filter({ id: currentUser.id }).getFirst();
+      ]).filter({ xata_id: currentUser.id }).getFirst();
 
       if (!result) {
         return response.status(404).json({ message: "User not found" });
       }
 
       const userDetails: UserDetails = {
-        id: result.id,
+        id: result.xata_id,
         name: result.name,
         cpf: result.cpf,
         status: result.status,
@@ -35,7 +35,7 @@ export default allowCors(async function handler(request: VercelRequest, response
         social_name: result.social_name,
         profile_pic_url: result.profile_pic_url,
         sus_id: result.sus_id,
-        ubs: result.ubs.id,
+        ubs: result.ubs.xata_id,
         profile: result.profile
       };
 
