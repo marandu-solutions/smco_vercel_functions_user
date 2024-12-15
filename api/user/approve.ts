@@ -4,7 +4,6 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { z } from "zod";
 import { UserJwt as CurrentUser } from "../../types/user";
 import { allowCors } from "../../middleware/cors";
-import { updateNewsSchema } from "../../schemas/news";
 import {approveUser} from "../../schemas/user";
 
 
