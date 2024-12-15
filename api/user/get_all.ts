@@ -23,7 +23,7 @@ export default allowCors(async function handler(request: VercelRequest, response
 
       const users = result.map(user => ({
         id: user.xata_id,
-        ubs: user.ubs,
+        ubs: user.ubs.xata_id,
         name: user.name,
         profile: user.profile
       }));
