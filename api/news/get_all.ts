@@ -11,25 +11,25 @@ export default allowCors(async function handler(request: VercelRequest, response
   }
 
   validateJWT(request, response, async (currentUser: CurrentUser) => {
-    const xata = getXataClient();
-
     try {
+      const xata = getXataClient();
       const result = await xata.db.news.select([
-        "id", "ubs.id", "title", "text", "image_url", "created_by.name", "xata.createdAt", "xata.updatedAt"
+        "xata_id", "ubs.xata_id", "title", "text", "image_url", "created_by.name", "xata_createdat", "xata_updatedat"
       ]).filter({ ubs: currentUser.ubs }).getAll();
 
       const newsList = result.map(news => ({
-        id: news.id,
-        ubs: news.ubs.id,
+        id: news.xata_id,
+        ubs: news.ubs.xata_id,
         title: news.title,
         text: news.text,
         image_url: news.image_url,
         created_by: news.created_by.name,
-        createdAt: news.xata.createdAt,
-        updatedAt: news.xata.updatedAt
+        createdAt: news.xata_createdat,
+        updatedAt: news.xata_updatedat
       }));
 
       const news = newsList.sort((a, b) => {
+        console.log(a);
         const aDate = Math.max(new Date(a.createdAt).getTime(), new Date(a.updatedAt).getTime());
         const bDate = Math.max(new Date(b.createdAt).getTime(), new Date(b.updatedAt).getTime());
 

@@ -15,13 +15,13 @@ export default allowCors(async function handler(request: VercelRequest, response
 
     try {
       const result = await xata.db.appointment_category.select([
-        "id", "ubs.id", "name",
+        "xata_id", "ubs.xata_id", "name",
       ]).filter({ ubs: currentUser.ubs }).getAll();
 
       const appointmentCategories = result.map(appointmentCategory => ({
-        id: appointmentCategory.id,
-        ubs: appointmentCategory.ubs,
-        name: appointmentCategory.name
+        id: appointmentCategory.xata_id,
+        ubs: appointmentCategory.ubs?.xata_id || null,
+        name: appointmentCategory.name,
       }));
 
       return response.status(200).json(appointmentCategories);

@@ -24,7 +24,7 @@ export default allowCors(async function handler(request: VercelRequest, response
     return response.status(500).json({ message: "Unexpected error", error });
   }
 
-  let user: UserLoginData | null = null;
+  let user;
   try {
     const xata = getXataClient();
     user = await xata.db.user.select(
