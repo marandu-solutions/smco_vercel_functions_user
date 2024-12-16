@@ -8,7 +8,7 @@ import { UserLoginData } from '../../types/user';
 import appConfig from '../../core/app_config';
 import { allowCors } from '../../middleware/cors';
 
-
+ 
 export default allowCors(async function handler(request: VercelRequest, response: VercelResponse) {
   if (request.method !== "POST") {
     return response.status(405).json({ message: "Method Not Allowed" });
