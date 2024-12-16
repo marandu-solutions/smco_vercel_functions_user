@@ -24,11 +24,11 @@ export default allowCors(async function handler(request: VercelRequest, response
     return response.status(500).json({ message: "Unexpected error", error });
   }
 
-  let user: UserLoginData | null = null;
+  let user;
   try {
     const xata = getXataClient();
     user = await xata.db.user.select(
-      ["id", "name", "ubs.xata_id", "password_hash"]
+      ["xata_id", "name", "ubs.xata_id", "password_hash", "profile"]
     ).filter({ cpf: loginData.cpf }).getFirst();
 
     if (!user || hashPassword(loginData.password, loginData.cpf) !== user.password_hash) {
@@ -39,9 +39,9 @@ export default allowCors(async function handler(request: VercelRequest, response
   }
 
   const token = jwt.sign(
-    { id: user.id, name: user.name, ubs: user.ubs.id },
+    { id: user.xata_id, name: user.name, ubs: user.ubs.xata_id, profile: user.profile },
     appConfig.jwt.secretKey,
-    { expiresIn: "10h" }
+    { expiresIn: "90h" }
   );
 
   return response.status(200).json({ token });

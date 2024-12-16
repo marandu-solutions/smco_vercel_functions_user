@@ -4,11 +4,11 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { z } from "zod";
 import { UserJwt as CurrentUser } from "../../types/user";
 import { allowCors } from "../../middleware/cors";
-import { updateNewsSchema } from "../../schemas/news";
+import { deleteAppointment } from "../../types/appointment";
 
 
 export default allowCors(async function handler(request: VercelRequest, response: VercelResponse) {
-  if (request.method !== "PUT") {
+  if (request.method !== "DELETE") {
     return response.status(405).json({ message: "Method Not Allowed" });
   }
 
@@ -16,25 +16,25 @@ export default allowCors(async function handler(request: VercelRequest, response
     const xata = getXataClient();
 
     try {
-      const validatedData = updateNewsSchema.parse(request.body);
+      const validatedData = deleteAppointment.parse(request.body);
+      const { id } = validatedData;
 
-      const { id, title, text } = validatedData;
-      const newsItem = await xata.db.news.filter({ id, "ubs.id": currentUser.ubs }).getFirst();
-      if (!newsItem) {
+      const appointmentItem = await xata.db.appointment.filter({ id: id }).getFirst();
+      if (!appointmentItem) {
         return response.status(404).json({ message: "News not found or access denied" });
       }
 
-      const updatedNews = await xata.db.news.update(id, {
-        title: title,
-        text: text,
+      const deletedAppointment = await xata.db.appointment.update(id, {
+        status: "canceled",
+        updated_by: currentUser.id
       });
 
-      return response.status(200).json({ message: "News updated successfully", updatedNews });
+      return response.status(200).json({ message: "appointment soft deleted successfully", deletedAppointment });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return response.status(400).json({ message: "Validation error", errors: error.errors });
       }
-      return response.status(500).json({ message: "Failed to update news", error });
+      return response.status(500).json({ message: "Failed to delete appointment", error });
     }
   });
 });

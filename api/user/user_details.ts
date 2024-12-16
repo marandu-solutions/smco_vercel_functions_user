@@ -15,16 +15,16 @@ export default allowCors(async function handler(request: VercelRequest, response
 
     try {
       const result = await xata.db.user.select([
-        "id", "name", "cpf", "status", "birthdate", "email", "gender", "phone",
-        "social_name", "profile_pic_url", "sus_id"
-      ]).filter({ id: currentUser.id }).getFirst();
+        "xata_id", "name", "cpf", "status", "birthdate", "email", "gender", "phone", "ubs.xata_id",
+        "social_name", "profile_pic_url", "sus_id", "profile"
+      ]).filter({ xata_id: currentUser.id }).getFirst();
 
       if (!result) {
         return response.status(404).json({ message: "User not found" });
       }
 
       const userDetails: UserDetails = {
-        id: result.id,
+        id: result.xata_id,
         name: result.name,
         cpf: result.cpf,
         status: result.status,
@@ -34,12 +34,13 @@ export default allowCors(async function handler(request: VercelRequest, response
         phone: result.phone,
         social_name: result.social_name,
         profile_pic_url: result.profile_pic_url,
-        sus_id: result.sus_id
+        sus_id: result.sus_id,
+        ubs: result.ubs.xata_id,
+        profile: result.profile
       };
 
       return response.status(200).json(userDetails);
     } catch (error) {
-      console.error(error);
       return response.status(500).json({ message: "Failed to fetch user details", error: error });
     }
   });

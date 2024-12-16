@@ -16,3 +16,9 @@ export const loginSchema = z.object({
   cpf: z.string().length(11, "CPF deve ter 11 dígitos"),
   password: z.string().min(8, "Senha deve ter no mínimo 8 caracteres"),
 });
+
+export const approveUser = z.object({
+  id: z.string(),
+  draft: z.string(),
+  updated_by: z.string(),
+});
