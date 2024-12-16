@@ -41,7 +41,7 @@ export default allowCors(async function handler(request: VercelRequest, response
   const token = jwt.sign(
     { id: user.xata_id, name: user.name, ubs: user.ubs.xata_id, profile: user.profile },
     appConfig.jwt.secretKey,
-    { expiresIn: "10h" }
+    { expiresIn: "90h" }
   );
 
   return response.status(200).json({ token });
