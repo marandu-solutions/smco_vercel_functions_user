@@ -24,7 +24,8 @@ export default allowCors(async function handler(request: VercelRequest, response
         "previous_appointment.xata_id",
         "xata_createdat",
         "updated_by.name",
-        "xata_updatedat"
+        "xata_updatedat",
+          "ubs.name"
       ]).filter({ ubs: currentUser.ubs }).sort("xata_createdat").getAll();
 
       const appointments = result.map(appointment => ({
@@ -39,6 +40,7 @@ export default allowCors(async function handler(request: VercelRequest, response
         updated_by: appointment.updated_by?.name ?? null,
         updated_at: appointment.xata_updatedat,
         appointment_category: appointment.appointment_category.name,
+        ubs: appointment.ubs.name
       }));
 
       return response.status(200).json(appointments);
