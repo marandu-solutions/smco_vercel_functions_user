@@ -5,7 +5,7 @@ import { z } from "zod";
 import { UserJwt as CurrentUser } from "../../types/user";
 import { allowCors } from "../../middleware/cors";
 import {approveUser} from "../../schemas/user";
-
+ 
 
 export default allowCors(async function handler(request: VercelRequest, response: VercelResponse) {
     if (request.method !== "PUT") {
