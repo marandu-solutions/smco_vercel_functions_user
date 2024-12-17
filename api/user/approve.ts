@@ -19,7 +19,7 @@ export default allowCors(async function handler(request: VercelRequest, response
             const validatedData = approveUser.parse({ ...request.body, updated_by: currentUser.id });
 
             const { id, ...updateData } = validatedData;
-            const userToUpdate = await xata.db.user.filter({ id }).getFirst();
+            const userToUpdate = await xata.db.user.filter({ xata_id: id }).getFirst();
             if (!userToUpdate) {
                 return response.status(404).json({ message: "user not found or access denied" });
             }
