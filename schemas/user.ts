@@ -20,5 +20,4 @@ export const loginSchema = z.object({
 export const approveUser = z.object({
   id: z.string(),
   status: z.boolean(),
-  updated_by: z.string(),
 });
