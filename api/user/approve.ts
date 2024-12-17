@@ -16,7 +16,7 @@ export default allowCors(async function handler(request: VercelRequest, response
         const xata = getXataClient();
 
         try {
-            const validatedData = approveUser.parse({ ...request.body, updated_by: currentUser.id });
+            const validatedData = approveUser.parse(request.body);
 
             const { id, ...updateData } = validatedData;
             const userToUpdate = await xata.db.user.filter({ xata_id: id }).getFirst();
